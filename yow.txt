@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>JS</title>
+<style>
+body{margin:0;height:100vh;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Courier New,monospace;color:white}
+.section{text-align:center;margin:25px 0}
+.label{color:#666;font-size:0.8em;letter-spacing:4px;margin-bottom:10px}
+.jam-besar{color:#00ff88;font-size:4em;text-shadow:0 0 20px #00ff88,0 0 40px #00ff88;letter-spacing:3px}
+.tanggal{color:#666;margin-top:10px;font-size:0.9em}
+.waktu-sw{color:#00d4ff;font-size:3.5em;text-shadow:0 0 20px #00d4ff}
+.waktu-sw .ms{font-size:0.5em;color:#888}
+.tombol{display:flex;gap:10px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+button{padding:10px 22px;font-size:0.95em;font-weight:bold;border:none;border-radius:30px;cursor:pointer;color:white;transition:0.15s}
+button:hover:not(:disabled){transform:translateY(-3px)}
+button:disabled{opacity:0.3;cursor:not-allowed}
+.start{background:#00c853}
+.stop{background:#ff1744}
+.reset{background:#ff9100}
+hr{width:80%;border:none;border-top:1px solid #222;margin:20px 0}
+@media(max-width:500px){.jam-besar{font-size:2.2em}.waktu-sw{font-size:2em}}
+</style>
+</head>
+<body>
+
+<div class="section">
+<div class="label">JAM SEKARANG</div>
+<div class="jam-besar" id="jam">00:00:00</div>
+<div class="tanggal" id="tanggal">-</div>
+</div>
+
+<hr>
+
+<div class="section">
+<div class="label">STOPWATCH</div>
+<div class="waktu-sw">
+<span id="menit">00</span>:<span id="detik">00</span><span class="ms">.<span id="ms">00</span></span>
+</div>
+<div class="tombol">
+<button class="start" id="btnStart" onclick="swMulai()">Start</button>
+<button class="stop" id="btnStop" onclick="swStop()" disabled>Stop</button>
+<button class="reset" onclick="swReset()">Reset</button>
+</div>
+</div>
+
+<script>
+
+function updateJam(){
+var now=new Date();
+var j=String(now.getHours()).padStart(2,'0');
+var m=String(now.getMinutes()).padStart(2,'0');
+var s=String(now.getSeconds()).padStart(2,'0');
+document.getElementById('jam').textContent=j+':'+m+':'+s;
+var hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+var bulan=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+document.getElementById('tanggal').textContent=hari[now.getDay()]+', '+now.getDate()+' '+bulan[now.getMonth()]+' '+now.getFullYear();
+}
+
+updateJam();
+setInterval(updateJam,1000);
+
+var mulaiWaktu=0;
+var timer=null;
+var berjalan=false;
+var elapsed=0;
+
+function tampilkanSw(ms){
+var total=Math.floor(ms/1000);
+var menit=Math.floor(total/60);
+var detik=total%60;
+var milli=Math.floor((ms%1000)/10);
+document.getElementById('menit').textContent=String(menit).padStart(2,'0');
+document.getElementById('detik').textContent=String(detik).padStart(2,'0');
+document.getElementById('ms').textContent=String(milli).padStart(2,'0');
+}
+
+function swMulai(){
+if(berjalan)return;
+berjalan=true;
+mulaiWaktu=Date.now()-elapsed;
+timer=setInterval(function(){
+elapsed=Date.now()-mulaiWaktu;
+tampilkanSw(elapsed);
+},10);
+document.getElementById('btnStart').disabled=true;
+document.getElementById('btnStop').disabled=false;
+}
+
+function swStop(){
+if(!berjalan)return;
+berjalan=false;
+clearInterval(timer);
+document.getElementById('btnStart').disabled=false;
+document.getElementById('btnStop').disabled=true;
+}
+
+function swReset(){
+swStop();
+elapsed=0;
+tampilkanSw(0);
+}
+
+document.addEventListener('keydown',function(e){
+if(e.code==='Space'){
+e.preventDefault();
+if(berjalan)swStop();
+else swMulai();
+}
+});
+
+</script>
+</body>
+</html>
